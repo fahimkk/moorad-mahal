@@ -1,0 +1,113 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl      = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Households {
+  id                  BigInt   @id @default(autoincrement()) // Primary key with UUID
+  mahalId             BigInt   @map("mahal_id")
+  houseNumber         String   @map("house_number")
+  houseName           String   @map("house_name")
+  fullAddress         String   @map("full_address")
+  familyCategory      String   @map("family_category")
+  isDeleted           Boolean  @default(false) @map("is_deleted")
+  updatedBy           String?  @map("updated_by")
+  updatedOn           DateTime @updatedAt @map("updated_on")
+  createdBy           String?  @map("created_by")
+  createdOn           DateTime @default(now()) @map("created_on")
+
+  Payments            HouseholdPayments[] // One-to-many relationship with HouseholdPayments
+  Users       Users[]  // One-to-many relationship with Users
+
+  @@map("households")
+}
+
+model HouseholdPayments {
+  id              BigInt   @id @default(autoincrement()) // Primary key with UUID
+  householdId     BigInt   @map("household_id") // Foreign key to Households
+  paymentType     String   @map("payment_type") // monthly_payment, eid_ul_adha, eid_ul_fitr
+  amount          Int    // Base amount to be paid
+  premiumAmount   Int    @map("premium_amount") // Premium amount based on family category
+  dueDate         DateTime @map("due_date") // Due date for the payment
+  paidDate        DateTime? @map("paid_date") // Date when the payment was made
+  isDeleted       Boolean  @default(false) @map("is_deleted")
+  updatedBy       String?  @map("updated_by")
+  updatedOn       DateTime @updatedAt @map("updated_on")
+  createdBy       String?  @map("created_by")
+  createdOn       DateTime @default(now()) @map("created_on")
+
+  Household       Households @relation(fields: [householdId], references: [id]) // Relationship to Households
+
+  @@map("household_payments")
+}
+
+model Users {
+  id          BigInt   @id @default(autoincrement()) // Primary key with UUID
+  email       String?
+  mobile      String?
+  password    String?
+  name        String 
+  gender      String?
+  roles       String[] // administration roles (secretary, etc), app role (admin, etc), Family head
+  householdId BigInt?  @map("household_id") // Foreign key to Households
+  isActive    Boolean  @default(true) @map("is_active")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  updatedBy   String?  @map("updated_by")
+  updatedOn   DateTime @updatedAt @map("updated_on")
+  createdBy   String?  @map("created_by")
+  createdOn   DateTime @default(now()) @map("created_on")
+
+  Household   Households? @relation(fields: [householdId], references: [id]) // Relationship to Households
+  UserDonations UserDonations[] // One-to-many relationship with UserDonations
+
+  @@map("users") // Maps model to actual table name
+  @@unique([email, mobile]) // Compound unique constraint
+}
+
+model Donations {
+  id           BigInt   @id @default(autoincrement()) // Primary key with UUID
+  title        String   
+  description  String   
+  targetAmount String?  @map("target_amount")
+  startDate    DateTime @map("start_date")
+  endDate      DateTime? @map("end_date")
+  isDeleted    Boolean  @default(false) @map("is_deleted")
+  updatedBy    String?  @map("updated_by")
+  updatedOn    DateTime @updatedAt @map("updated_on")
+  createdBy    String?  @map("created_by")
+  createdOn    DateTime @default(now()) @map("created_on")
+
+  UserDonations UserDonations[] // One-to-many relationship with UserDonations
+
+  @@map("donations")
+}
+
+model UserDonations {
+  id         BigInt   @id @default(autoincrement()) // Primary key with UUID
+  userId     BigInt?   @map("user_id") // Foreign key to Users
+  donationId BigInt   @map("donation_id") // Foreign key to Donations
+  amount     Int
+  referral   String?  @map("referral")
+  donatedAt  DateTime? @map("donated_at")
+  isDeleted  Boolean  @default(false) @map("is_deleted")
+  updatedBy  String?  @map("updated_by")
+  updatedOn  DateTime @updatedAt @map("updated_on")
+  createdBy  String?  @map("created_by")
+  createdOn  DateTime @default(now()) @map("created_on")
+
+  User       Users?    @relation(fields: [userId], references: [id]) // Relationship to Users
+  Donation   Donations @relation(fields: [donationId], references: [id]) // Relationship to Donations
+
+  @@map("user_donations")
+}

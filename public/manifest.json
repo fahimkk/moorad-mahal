@@ -1,0 +1,22 @@
+{
+    "name": "Moorad Mahal",
+    "short_name": "Mahal",
+    "description": "A web app for managing donations and payments in Moorad Mahallu.",
+    "icons": [
+      {
+        "src": "/icons/icon-192x192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/icons/icon-512x512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      }
+    ],
+    "theme_color": "#ffffff",
+    "background_color": "#ffffff",
+    "display": "standalone",
+    "start_url": "/"
+  }
+  

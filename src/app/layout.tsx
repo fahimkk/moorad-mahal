@@ -1,7 +1,17 @@
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/shared-components/Navbar";
+import AppSidebar from "@/components/shared-components/AppSidebar";
+import { 
+  SidebarProvider,
+  SidebarInset,
+ } from "@/components/ui/sidebar"
+import { Metadata } from "next";
+import AppHeader from "@/components/shared-components/AppHeader";
+
+export const metadata: Metadata = {
+  title: "Moorad Mahal",
+  description: 'Application for handling dontaion, due etc of Moorad Mahal'
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,24 +23,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Moorad Mahal",
-  description: "Official website of Moorad Mahal, tracking donations and dues.",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#ffffff" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        {children}
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              <AppHeader /> 
+              {children}
+            </SidebarInset>
+          </SidebarProvider>
       </body>
     </html>
   );
 }
+
